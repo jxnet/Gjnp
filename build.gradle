@@ -29,7 +29,7 @@ gradlePlugin {
 
 pluginBundle {
 
-    website = 'http://ardikars.org/'
+    website = 'http://ardikars.com'
     vcsUrl = 'https://github.com/jxnet/Gjnp'
 
     description = 'Plugin for generate JNI header files'

@@ -6,13 +6,13 @@ plugins {
 }
 
 ext {
-    VERSION = "1.0.0.RC2"
+    VERSION = "1.0.0.Final"
 }
 
 group 'gjnp'
 version "${VERSION}"
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 repositories {
     jcenter()

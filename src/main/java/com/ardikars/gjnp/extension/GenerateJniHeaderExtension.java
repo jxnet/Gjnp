@@ -22,7 +22,7 @@ public class GenerateJniHeaderExtension {
 
     private String javah;
     private String destination;
-    private List<String> classPath;
+    private List<String> classpath;
     private List<String> nativeClasses;
 
     public String getJavah() {
@@ -33,12 +33,12 @@ public class GenerateJniHeaderExtension {
         this.javah = javah;
     }
 
-    public List<String> getClassPath() {
-        return classPath;
+    public List<String> getClasspath() {
+        return classpath;
     }
 
-    public void setClassPath(List<String> classPath) {
-        this.classPath = classPath;
+    public void setClassPath(List<String> classpath) {
+        this.classpath = classpath;
     }
 
     public String getDestination() {

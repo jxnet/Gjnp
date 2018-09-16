@@ -18,13 +18,12 @@ package com.ardikars.gjnp.task;
 
 import com.ardikars.gjnp.extension.GenerateJniHeaderExtension;
 import com.ardikars.gjnp.util.StringJoiner;
-import org.gradle.api.internal.AbstractTask;
+import org.gradle.api.tasks.AbstractExecTask;
 import org.gradle.api.tasks.TaskAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,15 +33,20 @@ import java.util.List;
  * @author Ardika Rommy Sanjaya
  * @since 1.0.0
  */
-public class GenerateJniHeaderTask extends AbstractTask {
+public class GenerateJniHeaderTask extends AbstractExecTask<GenerateJniHeaderTask> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateJniHeaderTask.class);
+
+    public GenerateJniHeaderTask() {
+        super(GenerateJniHeaderTask.class);
+    }
 
     /**
      * Execute javah commands.
      */
+    @Override
     @TaskAction
-    public void generateJniHeaderTask() {
+    public void exec() {
         GenerateJniHeaderExtension extension = getProject()
                 .getExtensions()
                 .findByType(GenerateJniHeaderExtension.class);
@@ -61,12 +65,14 @@ public class GenerateJniHeaderTask extends AbstractTask {
             destination = getProject().getBuildDir().getAbsolutePath() + "/jni/include";
         }
         List<String> defaultClasspath = new ArrayList<>();
+        if (extension.getClasspath() != null && !extension.getClasspath().isEmpty()) {
+            defaultClasspath.addAll(extension.getClasspath());
+        }
+        defaultClasspath.add(getProject().getBuildDir().getAbsolutePath() + "/classes/java/main");
         Iterator<File> fileIterator = getProject().getConfigurations().getByName("compile").getFiles().iterator();
-        defaultClasspath.addAll(extension.getClassPath());
         while (fileIterator.hasNext()) {
             defaultClasspath.add(fileIterator.next().getAbsolutePath());
         }
-        StringJoiner stringJoiner;
         String classpath = org.gradle.internal.os.OperatingSystem.current().isWindows() ?
                 new StringJoiner(";").join(defaultClasspath) :
                 new StringJoiner(":").join(defaultClasspath);
@@ -74,17 +80,19 @@ public class GenerateJniHeaderTask extends AbstractTask {
         if (classes == null || classes.isEmpty()) {
             throw new IllegalArgumentException("Classes should be not empty.");
         }
-        String nativeClasses = new StringJoiner(" ").join(classes);
-        try {
-            String command = javah + " "
-                    + " -jni -d " + destination
-                    + " -classpath " + classpath
-                    + " " + nativeClasses + " ";
-            Runtime.getRuntime().exec(command);
-            LOGGER.debug("Execute: {}", command);
-        } catch (IOException e) {
-            e.printStackTrace();
+        List<String> commands = new ArrayList<>();
+        commands.add(javah);
+        commands.add("-jni");
+        commands.add("-d");
+        commands.add(destination);
+        commands.add("-classpath");
+        commands.add(classpath);
+        commands.addAll(classes);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Command : {}", commands);
         }
+        super.setCommandLine(commands);
+        super.exec();
     }
 
 }

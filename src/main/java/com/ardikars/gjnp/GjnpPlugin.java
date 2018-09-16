@@ -17,6 +17,7 @@
 package com.ardikars.gjnp;
 
 import com.ardikars.gjnp.extension.GenerateJniHeaderExtension;
+import com.ardikars.gjnp.task.GenerateJniHeaderTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -25,6 +26,8 @@ public class GjnpPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getExtensions().create("Gjnp", GenerateJniHeaderExtension.class);
+        project.getTasks().create("generateJniHeaderTask", GenerateJniHeaderTask.class)
+                .dependsOn("assemble");
     }
 
 }

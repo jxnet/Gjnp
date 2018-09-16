@@ -16,14 +16,13 @@
 
 package com.ardikars.gjnp.extension;
 
-import java.nio.file.Path;
 import java.util.List;
 
 public class GenerateJniHeaderExtension {
 
     private String javah;
-    private Path classPath;
-    private Path destination;
+    private String destination;
+    private List<String> classPath;
     private List<String> nativeClasses;
 
     public String getJavah() {
@@ -34,19 +33,19 @@ public class GenerateJniHeaderExtension {
         this.javah = javah;
     }
 
-    public Path getClassPath() {
+    public List<String> getClassPath() {
         return classPath;
     }
 
-    public void setClassPath(Path classPath) {
+    public void setClassPath(List<String> classPath) {
         this.classPath = classPath;
     }
 
-    public Path getDestination() {
+    public String getDestination() {
         return destination;
     }
 
-    public void setDestination(Path destination) {
+    public void setDestination(String destination) {
         this.destination = destination;
     }
 

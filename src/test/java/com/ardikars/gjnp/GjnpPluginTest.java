@@ -16,13 +16,18 @@
 
 package com.ardikars.gjnp;
 
+import com.ardikars.gjnp.util.StringJoiner;
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
 public class GjnpPluginTest {
@@ -34,6 +39,16 @@ public class GjnpPluginTest {
 
         assertTrue(project.getPluginManager()
                 .hasPlugin("gjnp"));
+    }
+
+    @Test
+    public void test() {
+        List<String> strings = new ArrayList<>();
+        strings.add("Stat");
+        strings.add("Us");
+        strings.add("IS");
+        StringJoiner joiner = new StringJoiner(";");
+        assertEquals("Stat;Us;IS", joiner.join(strings));
     }
 
 }

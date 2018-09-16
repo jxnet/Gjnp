@@ -1,15 +1,50 @@
+
+
 plugins {
+    id "com.gradle.plugin-publish" version "0.10.0"
     id 'java-gradle-plugin'
-    id 'maven'
 }
 
-group 'com.ardikars.gjnp'
-version '1.0.0'
+ext {
+    VERSION = "1.0.0.RC2"
+}
 
-sourceCompatibility = 1.8
+group 'gjnp'
+version "${VERSION}"
+
+sourceCompatibility = 1.7
 
 repositories {
-    mavenCentral()
+    jcenter()
+}
+
+gradlePlugin {
+    plugins {
+        gjnpPlugin {
+            id = 'com.ardikars.gjnp'
+            implementationClass = 'com.ardikars.gjnp.GjnpPlugin'
+        }
+    }
+}
+
+pluginBundle {
+
+    website = 'http://ardikars.org/'
+    vcsUrl = 'https://github.com/jxnet/Gjnp'
+
+    description = 'Plugin for generate JNI header files'
+
+    plugins {
+
+        gjnpPlugin {
+            // id is captured from java-gradle-plugin configuration
+            displayName = 'Gjnp plugin'
+            tags = ['plugin', 'jni']
+            version = "${VERSION}"
+        }
+
+    }
+
 }
 
 dependencies {

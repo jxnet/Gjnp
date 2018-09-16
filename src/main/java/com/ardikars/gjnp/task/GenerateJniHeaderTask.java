@@ -17,51 +17,70 @@
 package com.ardikars.gjnp.task;
 
 import com.ardikars.gjnp.extension.GenerateJniHeaderExtension;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
+import com.ardikars.gjnp.util.StringJoiner;
 import org.gradle.api.internal.AbstractTask;
 import org.gradle.api.tasks.TaskAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+/**
+ * Task for generate JNI header files.
+ * @author Ardika Rommy Sanjaya
+ * @since 1.0.0
+ */
 public class GenerateJniHeaderTask extends AbstractTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateJniHeaderTask.class);
 
+    /**
+     * Execute javah commands.
+     */
     @TaskAction
     public void generateJniHeaderTask() {
         GenerateJniHeaderExtension extension = getProject()
                 .getExtensions()
                 .findByType(GenerateJniHeaderExtension.class);
         String javah = extension.getJavah();
-        String defaultJavaHome = System.getProperty("java.home");
-        if (defaultJavaHome.endsWith("/jre")) {
-            javah = defaultJavaHome.substring(0, defaultJavaHome.lastIndexOf("/jre"));
-        } else {
-            javah = defaultJavaHome;
+        if (javah == null || javah.isEmpty()) {
+            String defaultJavaHome = System.getProperty("java.home");
+            if (defaultJavaHome.endsWith("/jre")) {
+                javah = defaultJavaHome.substring(0, defaultJavaHome.lastIndexOf("/jre"));
+            } else {
+                javah = defaultJavaHome;
+            }
+            javah += "/bin/javah";
         }
-        javah += "/bin/javah";
-        Path destination = extension.getDestination();
+        String destination = extension.getDestination();
         if (destination == null) {
-            destination = Paths.get(getProject().getBuildDir().getAbsolutePath() + "/jni/include");
+            destination = getProject().getBuildDir().getAbsolutePath() + "/jni/include";
         }
-        Path classPath = extension.getClassPath();
-        if (classPath == null) {
-            classPath = Paths.get(getProject().getBuildDir() + "/classes/java/main");
+        List<String> defaultClasspath = new ArrayList<>();
+        Iterator<File> fileIterator = getProject().getConfigurations().getByName("compile").getFiles().iterator();
+        defaultClasspath.addAll(extension.getClassPath());
+        while (fileIterator.hasNext()) {
+            defaultClasspath.add(fileIterator.next().getAbsolutePath());
         }
+        StringJoiner stringJoiner;
+        String classpath = org.gradle.internal.os.OperatingSystem.current().isWindows() ?
+                new StringJoiner(";").join(defaultClasspath) :
+                new StringJoiner(":").join(defaultClasspath);
         List<String> classes = extension.getNativeClasses();
         if (classes == null || classes.isEmpty()) {
             throw new IllegalArgumentException("Classes should be not empty.");
         }
-        String nativeClasses = String.join(" ", classes);
+        String nativeClasses = new StringJoiner(" ").join(classes);
         try {
             String command = javah + " "
-                    + " -jni -d " + destination.toAbsolutePath().toString()
-                    + " -classpath " + classPath.toAbsolutePath().toString()
+                    + " -jni -d " + destination
+                    + " -classpath " + classpath
                     + " " + nativeClasses + " ";
-            Process process = Runtime.getRuntime().exec(command);
+            Runtime.getRuntime().exec(command);
             LOGGER.debug("Execute: {}", command);
         } catch (IOException e) {
             e.printStackTrace();

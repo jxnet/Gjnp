@@ -24,7 +24,7 @@ public class GjnpPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.getExtensions().create("JniHeader", GenerateJniHeaderExtension.class);
+        project.getExtensions().create("Gjnp", GenerateJniHeaderExtension.class);
     }
 
 }
